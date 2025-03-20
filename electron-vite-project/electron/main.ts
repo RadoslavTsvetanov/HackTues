@@ -1,6 +1,7 @@
 import { app, BrowserWindow } from 'electron'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
+import { SerialPort } from 'serialport';
 import path from 'node:path'
 import "./server.cjs"
 
@@ -65,5 +66,23 @@ app.on('activate', () => {
     createWindow()
   }
 })
+
+const sensorPort = new SerialPort({
+  path: '/dev/ttyAMA0', // First UART for sensors
+  baudRate: 9600
+});
+
+const audioPort = new SerialPort({
+  path: '/dev/ttyAMA1', // Second UART for .wav files
+  baudRate: 115200
+});
+
+sensorPort.on('data', (data) => {
+  console.log('Sensor Data:', data.toString());
+});
+
+audioPort.on('data', (data) => {
+  console.log('Audio Data:', data.toString());
+});
 
 app.whenReady().then(createWindow)
